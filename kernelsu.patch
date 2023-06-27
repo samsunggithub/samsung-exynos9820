@@ -56,7 +56,7 @@ diff --git a/fs/open.c b/fs/open.c
  	struct vfsmount *mnt;
  	int res;
  	unsigned int lookup_flags = LOOKUP_FOLLOW;
-+	
++
 +#ifdef CONFIG_KSU
 +	ksu_handle_faccessat(&dfd, &filename, &mode, NULL);
 +#endif
@@ -157,7 +157,7 @@ diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
 +		if(rc == 0 && new_tsec->sid == ksu_sid){
 +			return 0;
 +		}
-+	}	
++	}
 +
  	/*
  	 * If the policy enables the nnp_nosuid_transition policy capability,
