@@ -189,3 +189,4 @@ diff --git a/drivers/input/input.c b/drivers/input/input.c
 +
  	if (disposition != INPUT_IGNORE_EVENT && type != EV_SYN)
  		add_input_randomness(type, code, value);
+ 
