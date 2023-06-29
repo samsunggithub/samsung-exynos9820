@@ -80,7 +80,7 @@ jobs:
                        +sdfat                     \
                        +cifs                      \
                        +ttl                       \
-                       +sched                     \
+                       +sched_ondemand            \
                        +mass_storage              \
                        +wireguard                 \
                        +morosound                 \
