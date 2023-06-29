@@ -79,7 +79,6 @@ jobs:
                        +sdfat                     \
                        +cifs                      \
                        +ttl                       \
-                       +sched_ondemand            \
                        +mass_storage              \
                        +wireguard                 \
                        +morosound                 \
