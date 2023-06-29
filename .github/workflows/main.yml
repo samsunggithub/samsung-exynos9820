@@ -64,7 +64,6 @@ jobs:
                        +force_dex_wqhd            \
                        +fp_boost                  \
                        +noatime                   \
-                       +simple_lmk                \
                        +100hz                     \
                        +io_maple                  \
                        +io_fiops                  \
@@ -87,6 +86,8 @@ jobs:
                        +boeffla_wl_blocker        \
                        +size                      \
                        +nodebug                   \
+                       +noaudit                   \
+                       +kvm                       \
                        +overlayfs                 \
           2>&1 | tee config.info
 
