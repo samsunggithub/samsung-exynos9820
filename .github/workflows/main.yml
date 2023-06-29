@@ -87,8 +87,6 @@ jobs:
                        +boeffla_wl_blocker        \
                        +size                      \
                        +nodebug                   \
-                       +noaudit                   \
-                       +kvm                       \
                        +overlayfs                 \
           2>&1 | tee config.info
 
