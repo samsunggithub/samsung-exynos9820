@@ -64,7 +64,7 @@ jobs:
                        +force_dex_wqhd            \
                        +fp_boost                  \
                        +noatime                   \
-                       +1000hz                     \
+                       +300z                     \
                        +io_maple                  \
                        +io_fiops                  \
                        +io_sio                    \
