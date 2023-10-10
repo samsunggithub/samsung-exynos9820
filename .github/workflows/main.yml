@@ -95,7 +95,7 @@ jobs:
           set -e -o pipefail
           ./cruelbuild config                    \
                        model=${{ matrix.model }} \
-                       name="Star7-KernelSU-v2.0"\
+                       name="Star7-KernelSU-v2.2"\
                        toolchain=$TOOLCHAIN      \
                        -magisk                   \
                        +nohardening              \
