@@ -21,7 +21,7 @@ then
 elif [ "x$1" = "xalpha" ]
 then
 	nver="alpha"
-	magisk_link="https://github.com/vvb2060/magisk_files/raw/${nver}/app-release.apk"
+	magisk_link="https://github.com/Star-Seven/samsung-exynos9820/raw/N976NKSU2HWD2/Alpha_bb39a524alpha.apk"
 else
 	dash='-'
 	if [ "x$1" = "x" ]; then
