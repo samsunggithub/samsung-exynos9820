@@ -56,9 +56,9 @@ jobs:
           ./cruelbuild config                    \
                        os_patch_level=2023-08    \
                        model=${{ matrix.model }} \
-                       name="Star7-HWD2-1.0"  \
+                       name="Star7-kernel-HWD2-2.0"  \
                        toolchain=$TOOLCHAIN      \
-                       +magisk            \
+                       +magisk=alpha            \
                        +nohardening               \
                        +dtb                       \
                        +empty_vbmeta              \
