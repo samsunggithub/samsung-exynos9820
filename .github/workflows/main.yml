@@ -3,7 +3,7 @@ name: Build
 on: [push]
 
 env:
-  TOOLCHAIN: cruel
+  TOOLCHAIN: samsung
   INSTALLER: yes
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        model: [ "G970F,G973F,G975F", "N975F" ]
+        model: [ "N975F,N976B,N976N" ]
 
     steps:
       - uses: actions/checkout@v3
@@ -55,9 +55,9 @@ jobs:
           set -e -o pipefail
           ./cruelbuild config                    \
                        model=${{ matrix.model }} \
-                       name="Cruel-devel"        \
+                       name="Star7-delta-v1.0"        \
                        toolchain=$TOOLCHAIN      \
-                       +magisk                   \
+                       +magisk=delta                   \
                        +nohardening              \
                        +ttl                      \
                        +wireguard                \
