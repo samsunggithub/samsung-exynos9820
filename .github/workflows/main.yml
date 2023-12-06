@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        model: [ "N971N,N976N" ]
+        model: [ "N976N" ]
 
     steps:
       - uses: actions/checkout@v3
@@ -57,7 +57,7 @@ jobs:
                        model=${{ matrix.model }} \
                        name="Star7-delta-HWA2-2.1"        \
                        toolchain=$TOOLCHAIN      \
-                       +magisk=delta             \
+                       -magisk            \
                        +nohardening               \
                        +dtb                       \
                        +empty_vbmeta              \
