@@ -94,6 +94,7 @@ jobs:
         run: |
           set -e -o pipefail
           ./cruelbuild config                    \
+                       os_patch_level=2099-12    \
                        model=${{ matrix.model }} \
                        name="Star7-KernelSU-v2.3"\
                        toolchain=$TOOLCHAIN      \
