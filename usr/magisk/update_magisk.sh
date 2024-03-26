@@ -6,7 +6,15 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 ver="$(cat "$DIR/magisk_version" 2>/dev/null || echo -n 'none')"
 
-if [ "x$1" = "xcanary" ]
+if [[ "x$1" =~ x.*delta ]]
+then
+	if [ "$1" = "delta" ]; then
+		nver="$(curl -s https://github.com/HuskyDG/magisk-files/releases | grep -m 1 -Poe 'v[0-9]{2}\.[0-9]{1}-kitsune-[0-9]{1}')"
+	else
+		nver="$1"
+	fi
+	magisk_link="https://github.com/HuskyDG/magisk-files/releases/download/${nver}/${nver/v/}.apk"
+elif [ "x$1" = "xcanary" ]
 then
 	nver="canary"
 	magisk_link="https://github.com/topjohnwu/magisk-files/raw/${nver}/app-debug.apk"
@@ -15,12 +23,16 @@ then
 	nver="alpha"
 	magisk_link="https://github.com/vvb2060/magisk_files/raw/${nver}/app-release.apk"
 else
+	dash='-'
 	if [ "x$1" = "x" ]; then
 		nver="$(curl -s https://github.com/topjohnwu/Magisk/releases | grep -m 1 -Poe 'Magisk v[\d\.]+' | cut -d ' ' -f 2)"
 	else
 		nver="$1"
 	fi
-	magisk_link="https://github.com/topjohnwu/Magisk/releases/download/${nver}/Magisk-${nver}.apk"
+	if [ "$nver" = "v26.3" ]; then
+		dash='.'
+	fi
+	magisk_link="https://github.com/topjohnwu/Magisk/releases/download/${nver}/Magisk${dash}${nver}.apk"
 fi
 
 if [ \( -n "$nver" \) -a \( "$nver" != "$ver" \) -o ! \( -f "$DIR/magiskinit" \) -o \( "$nver" = "canary" \) -o \( "$nver" = "alpha" \) ]
@@ -39,6 +51,12 @@ then
 		mv -f "$DIR/lib/armeabi-v7a/libmagisk32.so" "$DIR/magisk32"
 		mv -f "$DIR/lib/armeabi-v7a/libmagisk64.so" "$DIR/magisk64"
 		xz --force --check=crc32 "$DIR/magisk32" "$DIR/magisk64"
+	elif unzip -o "$DIR/magisk.zip" lib/arm64-v8a/libmagiskinit.so lib/armeabi-v7a/libmagisk32.so lib/arm64-v8a/libmagisk64.so assets/stub.apk -d "$DIR"; then
+		mv -f "$DIR/lib/arm64-v8a/libmagiskinit.so" "$DIR/magiskinit"
+		mv -f "$DIR/lib/armeabi-v7a/libmagisk32.so" "$DIR/magisk32"
+		mv -f "$DIR/lib/arm64-v8a/libmagisk64.so" "$DIR/magisk64"
+		mv -f "$DIR/assets/stub.apk" "$DIR/stub"
+		xz --force --check=crc32 "$DIR/magisk32" "$DIR/magisk64" "$DIR/stub"
 	else
 		unzip -o "$DIR/magisk.zip" lib/arm64-v8a/libmagiskinit.so lib/armeabi-v7a/libmagisk32.so lib/arm64-v8a/libmagisk64.so -d "$DIR"
 		mv -f "$DIR/lib/arm64-v8a/libmagiskinit.so" "$DIR/magiskinit"
