@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 
 import os, errno
@@ -5,6 +6,7 @@ from sys import argv, stdout, stderr
 import re
 import json
 import atexit
+import secrets
 from copy import deepcopy
 from datetime import datetime, timedelta
 from subprocess import CalledProcessError, Popen, run, DEVNULL, PIPE
@@ -91,17 +93,32 @@ models = {
     'G970F': {
         'config': 'exynos9820-beyond0lte_defconfig'
     },
+    'G970N': {
+        'config': 'exynos9820-beyond0lteks_defconfig'
+    },
     'G973F': {
         'config': 'exynos9820-beyond1lte_defconfig'
+    },
+    'G973N': {
+        'config': 'exynos9820-beyond1lteks_defconfig'
     },
     'G975F': {
         'config': 'exynos9820-beyond2lte_defconfig'
     },
+    'G975N': {
+        'config': 'exynos9820-beyond2lteks_defconfig'
+    },
     'G977B': {
         'config': 'exynos9820-beyondx_defconfig'
     },
+    'G977N': {
+        'config': 'exynos9820-beyondxks_defconfig'
+    },
     'N970F': {
         'config': 'exynos9820-d1_defconfig'
+    },
+    'N971N': {
+        'config': 'exynos9820-d1xks_defconfig'
     },
     'N975F': {
         'config': 'exynos9820-d2s_defconfig'
@@ -109,6 +126,9 @@ models = {
     'N976B': {
         'config': 'exynos9820-d2x_defconfig'
     },
+    'N976N': {
+        'config': 'exynos9820-d2xks_defconfig'
+    }
 }
 
 OBJTREE_SIZE_GB = 3
@@ -493,7 +513,7 @@ def parse_args():
                 if value not in toolchain:
                     fatal('Unknown toolchain: ' + value)
             elif key == 'magisk':
-                if value != 'canary' and value != 'alpha' and not re.match('^v\d+\.\d+', value):
+                if value not in ['canary', 'alpha', 'delta'] and not re.match('^(v\d+\.\d+)|([a-f0-9]{8}-delta)$', value):
                     fatal('Unknown magisk version: ' + value + ' (example: canary, alpha, v20.4, v19.4, ...)')
                 configs['kernel']['magisk']['version'] = value
         else:
@@ -594,7 +614,15 @@ def update_magisk(version):
     if version:
         cmd.append(version)
     run(cmd, check=True)
-    with open('usr/magisk/magisk_version', 'r') as fh:
+    with open('usr/magisk/backup_magisk', 'wt') as fh:
+        print(f"""
+KEEPVERITY=true
+KEEPFORCEENCRYPT=true
+RECOVERYMODE=false
+PREINITDEVICE=userdata
+RANDOMSEED=0x{secrets.token_hex(8)}
+""".strip(), file=fh)
+    with open('usr/magisk/magisk_version', 'rt') as fh:
         print('Magisk Version: ' + fh.readline())
 
 def switch_toolchain(compiler):
