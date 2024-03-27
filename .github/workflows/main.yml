@@ -3,7 +3,7 @@ name: Build
 on: [push]
 
 env:
-  TOOLCHAIN: samsung
+  TOOLCHAIN: cruel
   INSTALLER: yes
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        model: [ "N976B" ]
+        model: [ "N976B,N975F" ]
 
     steps:
       - uses: actions/checkout@v3
@@ -55,9 +55,9 @@ jobs:
           set -e -o pipefail
           ./cruelbuild config                    \
                        model=${{ matrix.model }} \
-                       name="star-v1.0"        \
+                       name="cruel-Pa-v1.0"        \
                        toolchain=$TOOLCHAIN      \
-                       +magisk=delta                   \
+                       +magisk                   \
                        +nohardening              \
                        +ttl                      \
                        +wireguard                \
