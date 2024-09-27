@@ -58,7 +58,7 @@ jobs:
           if [ -d "./drivers/kernelsu" ]; then
             rm -rf "./drivers/kernelsu"
           fi
-          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
           wget -q "https://raw.githubusercontent.com/Star-Seven/samsung-exynos9820/kernelsu/kernelsu.patch" -O KernelSU.patch
           git apply ./KernelSU.patch
           model=$(echo "${{ matrix.model }}" | cut -d ',' -f 1)
