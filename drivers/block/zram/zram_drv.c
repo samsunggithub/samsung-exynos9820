@@ -483,7 +483,6 @@ static void stop_lru_writeback(struct zram *zram)
 static void deinit_lru_writeback(struct zram *zram)
 {
 	unsigned long flags;
-	u8 *wb_table_tmp = zram->wb_table;
 
 	stop_lru_writeback(zram);
 	if (zram->chunk_bitmap) {
@@ -495,9 +494,11 @@ static void deinit_lru_writeback(struct zram *zram)
 		zram->blk_bitmap = NULL;
 	}
 	spin_lock_irqsave(&zram->wb_table_lock, flags);
-	zram->wb_table = NULL;
+	if (zram->wb_table) {
+		kvfree(zram->wb_table);
+		zram->wb_table = NULL;
+	}
 	spin_unlock_irqrestore(&zram->wb_table_lock, flags);
-	kvfree(wb_table_tmp);
 }
 #endif
 
@@ -1087,11 +1088,10 @@ static bool zram_should_writeback(struct zram *zram,
 	if (min_writtenback_ratio < writtenback_ratio)
 		ret = false;
 
-	if (zram->disksize / 4 > SZ_1G)
-		min_stored_byte = SZ_1G;
+	if (zram->disksize < SZ_4G)
+		min_stored_byte = SZ_512M;
 	else
-		min_stored_byte = zram->disksize / 4;
-
+		min_stored_byte = SZ_1G;
 	if ((stored << PAGE_SHIFT) < min_stored_byte)
 		ret = false;
 
