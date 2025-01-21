@@ -319,7 +319,7 @@ static int prepare_inline_encryption(struct super_block *sb, struct fscrypt_info
 	cipher_str = mode->cipher_str + INLINE_PREFIX_LEN;
 	bctx = blk_crypt_get_context(bdev, cipher_str);
 	if (IS_ERR(bctx)) {
-		pr_err("%s : failed to get blk_crypt context (transform: %s, err: %ld)",
+		pr_err("%s : failed to get blk_crypt context (transform: %s, err: %d)",
 				__func__, cipher_str, PTR_ERR(bctx));
 		return PTR_ERR(bctx);
 	}
@@ -471,12 +471,6 @@ int fscrypt_get_encryption_info(struct inode *inode)
 		return res;
 
 	res = inode->i_sb->s_cop->get_context(inode, &ctx, sizeof(ctx));
-#if defined(CONFIG_FSCRYPT_SDP) || defined(CONFIG_DDAR)
-	if (res == offsetof(struct fscrypt_context, knox_flags)) {
-		ctx.knox_flags = 0;
-		res = sizeof(ctx);
-	}
-#endif
 	if (res < 0) {
 		if (!fscrypt_dummy_context_enabled(inode) ||
 		    IS_ENCRYPTED(inode))
@@ -759,12 +753,6 @@ int fscrypt_get_encryption_key(struct inode *inode, struct fscrypt_key *key)
 //		return res;
 
 	res = inode->i_sb->s_cop->get_context(inode, &ctx, sizeof(ctx));
-#if defined(CONFIG_FSCRYPT_SDP) || defined(CONFIG_DDAR)
-	if (res == offsetof(struct fscrypt_context, knox_flags)) {
-		ctx.knox_flags = 0;
-		res = sizeof(ctx);
-	}
-#endif
 	if (res < 0) {
 		return res;
 	} else if (res != sizeof(ctx)) {
@@ -829,12 +817,6 @@ int fscrypt_get_encryption_key_classified(struct inode *inode, struct fscrypt_ke
 //		return res;
 
 	res = inode->i_sb->s_cop->get_context(inode, &ctx, sizeof(ctx));
-#if defined(CONFIG_FSCRYPT_SDP) || defined(CONFIG_DDAR)
-	if (res == offsetof(struct fscrypt_context, knox_flags)) {
-		ctx.knox_flags = 0;
-		res = sizeof(ctx);
-	}
-#endif
 	if (res < 0) {
 		return res;
 	} else if (res != sizeof(ctx)) {
@@ -895,12 +877,6 @@ int fscrypt_get_encryption_kek(struct inode *inode,
 //		return res;
 
 	res = inode->i_sb->s_cop->get_context(inode, &ctx, sizeof(ctx));
-#if defined(CONFIG_FSCRYPT_SDP) || defined(CONFIG_DDAR)
-	if (res == offsetof(struct fscrypt_context, knox_flags)) {
-		ctx.knox_flags = 0;
-		res = sizeof(ctx);
-	}
-#endif
 	if (res < 0) {
 		return res;
 	} else if (res != sizeof(ctx)) {
