@@ -12,7 +12,7 @@
 #include <string.h>
 #include "include/defex_rules.h"
 
-#define SAFE_STRCOPY(dst, src) do { strncpy(dst, src, sizeof(dst) - 1); dst[sizeof(dst) - 1] = 0; } while(0)
+#define SAFE_STRCOPY(dst, src) do { strncpy(dst, src, sizeof(dst)); dst[sizeof(dst) - 1] = 0; } while(0)
 
 const struct feature_match_entry feature_match[] = {
 	{"feature_safeplace_path", feature_safeplace_path},
@@ -21,7 +21,6 @@ const struct feature_match_entry feature_match[] = {
 	{"feature_immutable_path_write", feature_immutable_path_write},
 	{"feature_immutable_src_exception", feature_immutable_src_exception},
 	{"feature_umhbin_path", feature_umhbin_path},
-	{"feature_integrity_check", feature_integrity_check},
 };
 
 const int feature_match_size = sizeof(feature_match) / sizeof(feature_match[0]);

@@ -30,7 +30,6 @@
 #include <linux/debugfs.h>
 #include <linux/fs.h>
 #include <linux/shmem_fs.h>
-#include <linux/version.h>
 
 #include "five.h"
 #include "five_audit.h"
@@ -42,12 +41,6 @@
 #include "five_dmverity.h"
 #include "five_dsms.h"
 #include "five_testing.h"
-
-/* crash_dump in Android 12 uses this request even if Kernel doesn't
- * support it */
-#ifndef PTRACE_PEEKMTETAGS
-#define PTRACE_PEEKMTETAGS 33
-#endif
 
 static const bool check_dex2oat_binary = true;
 static const bool check_memfd_file = true;
@@ -713,7 +706,7 @@ int five_file_mmap(struct file *file, unsigned long prot)
  *
  * On success return 0.
  */
-int __five_bprm_check(struct linux_binprm *bprm, int depth)
+int five_bprm_check(struct linux_binprm *bprm)
 {
 	int rc = 0;
 	struct task_struct *task = current;
@@ -722,7 +715,7 @@ int __five_bprm_check(struct linux_binprm *bprm, int depth)
 	if (unlikely(task->ptrace))
 		return rc;
 
-	if (depth > 0) {
+	if (bprm->recursion_depth > 0) {
 		rc = push_file_event_bunch(task, bprm->file, MMAP_CHECK);
 	} else {
 		struct task_integrity *tint = task_integrity_alloc();
@@ -739,18 +732,6 @@ int __five_bprm_check(struct linux_binprm *bprm, int depth)
 
 	return rc;
 }
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0))
-int five_bprm_check(struct linux_binprm *bprm, int depth)
-{
-	return __five_bprm_check(bprm, depth);
-}
-#else
-int five_bprm_check(struct linux_binprm *bprm)
-{
-	return __five_bprm_check(bprm, bprm->recursion_depth);
-}
-#endif
 
 /**
  * This function handles two situations:
@@ -972,7 +953,6 @@ int five_ptrace(struct task_struct *task, long request)
 	case PTRACE_PEEKSIGINFO:
 	case PTRACE_GETSIGMASK:
 	case PTRACE_GETEVENTMSG:
-	case PTRACE_PEEKMTETAGS:
 #if defined(CONFIG_ARM64) || defined(KUNIT_UML)
 	case COMPAT_PTRACE_GETREGS:
 	case COMPAT_PTRACE_GET_THREAD_AREA:
