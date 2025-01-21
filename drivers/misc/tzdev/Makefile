@@ -1,6 +1,6 @@
-subdir-ccflags-y += -I$(srctree)/$(src)/include
-subdir-ccflags-y += -I$(srctree)/$(src)
-ccflags-$(CONFIG_TZDEV_DEPLOY_TZAR) += -Wa,-I$(srctree)/$(src)
+subdir-ccflags-y += -I$(srctree)/drivers/misc/tzdev/include
+subdir-ccflags-y += -I$(srctree)/drivers/misc/tzdev
+ccflags-$(CONFIG_TZDEV_DEPLOY_TZAR) += -D"_STR(s)=\#s" -D"KBUILD_SRC=_STR($(KBUILD_SRC))"
 
 obj-$(CONFIG_TZDEV)			+= lib/
 obj-$(CONFIG_TZDEV)			+= teec/
@@ -16,7 +16,6 @@ obj-$(CONFIG_TZDEV)			+= tz_platform.o
 obj-$(CONFIG_TZDEV)			+= tz_ree_time.o
 obj-$(CONFIG_TZDEV)			+= tz_uiwsock.o
 obj-$(CONFIG_TZDEV)			+= tzdev.o
-obj-$(CONFIG_TZDEV)			+= umem.o
 
 obj-$(CONFIG_TZDEV_KTHREADS_NOTIFIER)	+= tz_kthread_pool_notifier.o
 obj-$(CONFIG_TZDEV_KTHREADS_SMPBOOT)	+= tz_kthread_pool_smpboot.o

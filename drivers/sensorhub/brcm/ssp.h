@@ -1026,7 +1026,7 @@ struct ssp_data {
 /* AP suspend check flag*/
         bool IsAPsuspend;
 /* no ack about mcu_resp pin*/
-        int IsNoRespCnt;
+        bool IsNoRespCnt;
 /* hall ic */
 	bool hall_ic_status; // 0: open 1: close
 };
@@ -1213,7 +1213,7 @@ void report_move_detector_data(struct ssp_data *data, int sensor_type, struct se
 void report_pocket_mode_data(struct ssp_data *data, int sensor_type, struct sensor_value *pocket_data);
 void report_led_cover_event_data(struct ssp_data *data, int sensor_type, struct sensor_value *led_cover_event_data);
 void report_auto_rotation_data(struct ssp_data *data, int sensor_type, struct sensor_value *auto_rotation_data);
-void report_sar_backoff_motion_data(struct ssp_data *data, int sensor_type, struct sensor_value *sar_backoff_motion_data);
+void report_sar_backoff_motion_data(struct ssp_data *data, int sensor_type, struct sensor_value *auto_rotation_data);
 unsigned int get_module_rev(struct ssp_data *data);
 void reset_mcu(struct ssp_data *data);
 int sensors_register(struct device *dev, void *drvdata,

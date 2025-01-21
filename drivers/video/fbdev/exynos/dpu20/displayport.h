@@ -74,10 +74,9 @@ extern int forced_resolution;
 
 #define displayport_info(fmt, ...)						\
 	do {									\
-		if (displayport_log_level >= 6) {				\
+		if (displayport_log_level >= 6)					\
 			pr_info("Displayport: " pr_fmt(fmt), ##__VA_ARGS__);			\
 			dp_logger_print(fmt, ##__VA_ARGS__);                    \
-		}								\
 	} while (0)
 
 #define displayport_dbg(fmt, ...)						\
@@ -1273,16 +1272,6 @@ static inline bool IS_DISPLAYPORT_HPD_PLUG_STATE(void)
 	struct displayport_device *displayport = get_displayport_drvdata();
 
 	return (bool)displayport->hpd_current_state;
-}
-
-static inline bool IS_DISPLAYPORT_SWITCH_STATE(void)
-{
-	struct displayport_device *displayport = get_displayport_drvdata();
-
-	if (extcon_get_state(displayport->extcon_displayport, EXTCON_DISP_DP) == true)
-		return true;
-	else
-		return false;
 }
 
 int displayport_enable(struct displayport_device *displayport);
