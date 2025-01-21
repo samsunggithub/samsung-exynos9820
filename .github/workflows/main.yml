@@ -1,6 +1,7 @@
 name: Build
 
-on: [push]
+on:
+  workflow_dispatch:
 
 env:
   TOOLCHAIN: samsung
@@ -13,11 +14,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        model: [ "N971N,N976N" ]
+        model: [ "N970F" ]
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.7'
 
@@ -33,15 +34,15 @@ jobs:
       - name: Prepare ccache timestamp
         id: ccache_timestamp
         run: |
-          echo "::set-output name=FULL_DATE::$(date +'%Y-%m-%d')"
-          echo "::set-output name=MONTH_DATE::$(date +'%Y-%m')"
+          echo "{FULL_DATE}={$(date +'%Y-%m-%d')}" >> $GITHUB_STATE
+          echo "{MONTH_DATE}={$(date +'%Y-%m')}" >> $GITHUB_OUTPUT
 
       - name: Create cache key from ${{ matrix.model }}
         id: ccache_model_key
-        run: echo "::set-output name=KEY::$( echo ${{ matrix.model }} | tr ',' '_' )"
+        run: echo "{KEY}={$( echo ${{ matrix.model }} | tr ',' '_' )}" >> $GITHUB_STATE
 
       - name: Cache ccache files
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.ccache
           key: ccache-${{ env.TOOLCHAIN }}-${{ steps.ccache_model_key.outputs.KEY }}-${{ steps.ccache_timestamp.outputs.FULL_DATE }}
@@ -50,44 +51,87 @@ jobs:
             ccache-${{ env.TOOLCHAIN }}-${{ steps.ccache_model_key.outputs.KEY }}-
             ccache-${{ env.TOOLCHAIN }}-
 
+      - name: Setup KernelSU
+        run: |
+          if [ -d "./KernelSU" ]; then
+            rm -rf "./KernelSU"
+          fi
+          if [ -d "./drivers/kernelsu" ]; then
+            rm -rf "./drivers/kernelsu"
+          fi
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
+          wget -q "https://raw.githubusercontent.com/Star-Seven/samsung-exynos9820/kernelsu/kernelsu.patch" -O KernelSU.patch
+          git apply ./KernelSU.patch
+          model=$(echo "${{ matrix.model }}" | cut -d ',' -f 1)
+          case $model in
+            G970F|G973F|G975F)
+              config=exynos9820-beyond0lte_defconfig
+              ;;
+            G977B)
+              config=exynos9820-beyondx_defconfig
+              ;;
+            G977N)
+              config=exynos9820-beyondxks_defconfig
+              ;;
+            N975F)
+              config=exynos9820-d2s_defconfig
+              ;;
+            N970F)
+              config=exynos9820-d1_defconfig
+              ;;
+            N976B)
+              config=exynos9820-d2x_defconfig
+              ;;
+            N971N)
+              config=exynos9820-d1x_defconfig
+              ;;
+            N976N)
+              config=exynos9820-d2xks_defconfig
+              ;;
+          esac
+          echo -e "CONFIG_KSU=y" >> arch/arm64/configs/$config
+          echo -e "CONFIG_OVERLAY_FS=y" >> arch/arm64/configs/$config
+          echo -e "CONFIG_OVERLAYFS=y" >> arch/arm64/configs/$config
+          echo -e "CONFIG_FS_OVERLAYFS=y" >> arch/arm64/configs/$config
+
       - name: Kernel Configure
         run: |
           set -e -o pipefail
           ./cruelbuild config                    \
+                       os_patch_level=2099-12    \
                        model=${{ matrix.model }} \
-                       name="Star7-kernel-HWD2-2.2"  \
+                       name="Pa-KSU-v1.0"\
                        toolchain=$TOOLCHAIN      \
-                       +magisk=delta            \
-                       +nohardening               \
-                       +dtb                       \
-                       +empty_vbmeta              \
-                       +force_dex_wqhd            \
-                       +fp_boost                  \
-                       +noatime                   \
-                       +300hz                     \
-                       +io_maple                  \
-                       +io_fiops                  \
-                       +io_sio                    \
-                       +io_zen                    \
-                       +io_anxiety                \
-                       +io_noop                   \
-                       +io_cfq                    \
-                       +tcp_cubic                 \
-                       +tcp_westwood              \
-                       +performance               \
-                       +ntfs                      \
-                       +sdfat                     \
-                       +cifs                      \
-                       +ttl                       \
-                       +mass_storage              \
-                       +wireguard                 \
-                       +morosound                 \
-                       +boeffla_wl_blocker        \
-                       +size                      \
-                       +nodebug                   \
-                       +noaudit                   \
-                       +kvm                       \
-                       +overlayfs                 \
+                       -magisk                   \
+                       +nohardening              \
+                       +dtb                      \
+                       +empty_vbmeta             \
+                       +force_dex_wqhd           \
+                       +fp_boost                 \
+                       +noatime                  \
+                       +1000hz                   \
+                       +io_maple                 \
+                       +io_fiops                 \
+                       +io_sio                   \
+                       +io_zen                   \
+                       +io_anxiety               \
+                       +io_noop                  \
+                       +io_cfq                   \
+                       +tcp_cubic                \
+                       +tcp_westwood             \
+                       +performance              \
+                       +ntfs                     \
+                       +sdfat                    \
+                       +cifs                     \
+                       +ttl                      \
+                       +mass_storage             \
+                       +wireguard                \
+                       +morosound                \
+                       +boeffla_wl_blocker       \
+                       +size                     \
+                       +nodebug                  \
+                       +noaudit                  \
+                       +kvm                      \
           2>&1 | tee config.info
 
       - name: Install gcc-aarch64-linux-gnu
@@ -137,21 +181,21 @@ jobs:
           unzip ../CruelKernel.zip
       - name: Upload Kernel Zip
         if: env.INSTALLER == 'yes'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: CruelKernel-${{ matrix.model }}
           path: installer/*
           if-no-files-found: error
       - name: Upload Kernel Images
         if: env.INSTALLER != 'yes'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: CruelKernel-${{ matrix.model }}
           path: '*.img'
           if-no-files-found: error
 
       - name: Upload Kernel Info
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ConfigurationInfo-${{ matrix.model }}
           path: config.*
